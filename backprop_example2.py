@@ -20,12 +20,13 @@ def main():
     }
     
     nn = NeuralNetwork(layer_dims=[2,4,3,2], params=params, reg=0.250)
-    print("X1", x, "y1", y)
-    loss, grads = nn.loss(x, y)
+    print("X", x)
+    print("y", y)
+    loss, grads = nn.loss(x, y, verbose=True)
     print("\nRegulaized Loss over all training samples", loss)
-    print("\nFinal grads of theta1", grads["Theta1"])
-    print("\nFinal grads of theta2", grads["Theta2"])
-    print("\nFinal grads of theta3", grads["Theta3"])
+    print("\nFinal grads of theta1\n", grads["Theta1"])
+    print("\nFinal grads of theta2\n", grads["Theta2"])
+    print("\nFinal grads of theta3\n", grads["Theta3"])
 
 if __name__ == '__main__':
     main()
