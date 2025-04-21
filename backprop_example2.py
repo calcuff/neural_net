@@ -19,7 +19,7 @@ def main():
                         [0.17000,  0.10000,  0.95000,  0.69000  ]])
     }
     
-    nn = NeuralNetwork(layer_dims=[2,4,3,2], params=params, reg=0.250)
+    nn = NeuralNetwork(input_dim=2, hidden_layer_dims=[4,3], output_dim=2, params=params, reg=0.250)
     print("X", x)
     print("y", y)
     loss, grads = nn.loss(x, y, verbose=True)
