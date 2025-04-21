@@ -4,25 +4,47 @@ import logging
 logger = logging.getLogger(__name__)
 
 class NeuralNetwork():
-    def __init__(self, layer_dims, params, weight_scale=1e-2, reg = 0.0):
-        self.num_layers = len(layer_dims)
+    def __init__(self, input_dim, hidden_layer_dims, output_dim, params=None, weight_scale=1e-2, reg = 0.0):
+        self.layer_dims = [input_dim] + hidden_layer_dims + [output_dim]
+        self.num_layers = len(self.layer_dims) 
         self.reg = reg
+        
         
         if params:
             self.params = params
         else:
             self.params = {}
-            self.grads = {}
-            for i in range(1, self.num_layers):
-                in_dim = layer_dims[i-1] + 1 # add 1 for bias input
-                out_dim = layer_dims[i]
-                self.params['Theta' + str(i)] = weight_scale * np.random.randn(out_dim, in_dim)
-                self.grads['Theta' + str(i)] = np.zeros_like(self.params['Theta' + str(i)])
+            for i in range(1, len(self.layer_dims)):
+                in_dim = self.layer_dims[i-1] + 1 # add 1 for bias input
+                out_dim = self.layer_dims[i]
+                self.params['Theta' + str(i)] = np.random.randn(out_dim, in_dim) * np.sqrt(1 / in_dim)
+                
+                
+    def train(self, X, y, learning_rate=1e-2, num_iters=1, min_loss_improvement=None, verbose=False):
+        loss_history = []
+        for it in range(1,num_iters+1):
+            loss, grads = self.loss(X, y)
+            if (it % 500 == 0):
+                if verbose:
+                    print("Iteration", it, "loss", loss)
+            loss_history.append(loss)
+            for k in self.params:
+                self.params[k] += -grads[k] * learning_rate
+                
+    def predict(self, X):
+        scores = self.loss(X)
+        scores = np.array(scores)
+        # Convert score to 1 or 0 prediction
+        predictions = (scores > 0.5).astype(int)
+        return predictions
+        
     
-    def loss(self, X, Y, verbose=False):
+    def loss(self, X, Y=None, verbose=False):
         if verbose:
             logging.basicConfig(level=logging.DEBUG)
-            
+        
+        mode = 'test' if Y is None else 'train'
+        scores = []
         # Number of training samples
         m = X.shape[0]
         # Total loss
@@ -36,9 +58,7 @@ class NeuralNetwork():
         # Range training samples
         for i in range(m):
             x = X[i]
-            y = Y[i]
             logger.debug("x: %s", x)
-            logger.debug("y: %s", y)
             
             # Cache for backprop
             cache = {}
@@ -49,28 +69,33 @@ class NeuralNetwork():
             cache['a1'] = a
 
             # Forward pass through all hidden layers
-            for i in range(1, self.num_layers):
+            for j in range(1, self.num_layers):
                 # Get theta
-                theta = self.params["Theta"+str(i)]
+                theta = self.params["Theta"+str(j)]
                 z = np.dot(theta,a)
-                logger.debug("z"+str(i+1)+ ": %s", z)
-                cache["z"+str(i+1)] = z
+                logger.debug("z"+str(j+1)+ ": %s", z)
+                cache["z"+str(j+1)] = z
                 a = sigmoid(z)
-                if i != self.num_layers-1:
+                if j != self.num_layers-1:
                     a = np.insert(a, 0, 1.0)
-                logger.debug("a"+str(i+1)+ ": %s", a)
-                cache["a"+str(i+1)] = a
+                logger.debug("a"+str(j+1)+ ": %s", a)
+                cache["a"+str(j+1)] = a
+
 
             logger.debug("f(x): %s", a)
+            # If test mode return early
+            if mode == 'test':
+                scores.append(a[0])
+                continue
             
             # Cost function for this sample
-            j = cost(y, a)
+            j = cost(Y[i], a)
+            logger.debug("Cost: %s\n", j)
             # Add to total loss
             J += j
-            logger.debug("Cost: %s\n", J)
             
             # Delta of last layer
-            delta = a-y
+            delta = a - Y[i]
             logger.debug("delta"+str(self.num_layers)+": %s", delta)
             
             # Reverse loop for backpropagation
@@ -93,6 +118,9 @@ class NeuralNetwork():
                     delta = (theta_no_bias.T @ delta)*(a_no_bias*(1-a_no_bias))
                     logger.debug("delta"+str(i)+": %s", delta)
             
+        if mode == 'test':
+            return scores
+        
         # Average cost across training examples
         J /= m
         
@@ -117,4 +145,5 @@ def sigmoid(z):
 
 
 def cost(y, fx):
-    return np.sum((-y * np.log(fx)) - (1-y)*(np.log(1-fx)))
+    eps = 1e-8
+    return np.sum((-y * np.log(fx + eps)) - (1-y)*(np.log(1-fx + eps)))

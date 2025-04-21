@@ -13,7 +13,7 @@ def main():
     'Theta2': np.array([[0.7, 0.5, 0.6]])
     }
     
-    nn = NeuralNetwork(layer_dims=[1,2,1], params=params)
+    nn = NeuralNetwork(input_dim=1, hidden_layer_dims=[2], output_dim=1, params=params)
     print("X", x)
     print("y", y)
     loss, grads = nn.loss(x, y, verbose=True)
