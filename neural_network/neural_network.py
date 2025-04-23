@@ -4,10 +4,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 class NeuralNetwork():
-    def __init__(self, input_dim, hidden_layer_dims, output_dim, params=None, weight_scale=1e-2, reg = 0.0):
+    def __init__(self, input_dim, hidden_layer_dims, output_dim, params=None, reg = 0.0, lr=1e-2):
         self.layer_dims = [input_dim] + hidden_layer_dims + [output_dim]
         self.num_layers = len(self.layer_dims) 
         self.reg = reg
+        self.learning_rate=lr
         
         
         if params:
@@ -20,7 +21,7 @@ class NeuralNetwork():
                 self.params['Theta' + str(i)] = np.random.randn(out_dim, in_dim) * np.sqrt(1 / in_dim)
                 
                 
-    def train(self, X, y, learning_rate=1e-2, num_iters=1, min_loss_improvement=None, verbose=False):
+    def train(self, X, y, num_iters=1,verbose=False):
         loss_history = []
         for it in range(1,num_iters+1):
             loss, grads = self.loss(X, y)
@@ -29,7 +30,7 @@ class NeuralNetwork():
                     print("Iteration", it, "loss", loss)
             loss_history.append(loss)
             for k in self.params:
-                self.params[k] += -grads[k] * learning_rate
+                self.params[k] += -grads[k] * self.learning_rate
                 
     def predict(self, X):
         scores = self.loss(X)
