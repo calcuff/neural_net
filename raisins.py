@@ -3,7 +3,8 @@ import numpy as np
 from utils import *
 import matplotlib.pyplot as plt
 
-SHOULD_GRID_SEARCH = True
+SHOULD_GRID_SEARCH = False
+learning_rate=1e-1
 
 def main():
     data = np.genfromtxt('./resources/datasets/raisin.csv', delimiter=',', skip_header=1, dtype=float)
@@ -38,7 +39,7 @@ def main():
                     validation_fold_x = X_train_folds[i]
                     validation_fold_y = y_train_folds[i]
                 
-                    nn = NeuralNetwork(input_dim=7, hidden_layer_dims=hd, output_dim=1, reg=reg, lr=1e-1)
+                    nn = NeuralNetwork(input_dim=7, hidden_layer_dims=hd, output_dim=1, reg=reg, lr=learning_rate)
                     nn.train(x_train_data, y_train_data,num_iters=1000, verbose=False)
                     
                     y_pred = nn.predict(validation_fold_x)
@@ -56,8 +57,12 @@ def main():
                     best_reg = reg
                     best_hidden_dims = hd
 
-
-    train_sizes = [5, 10, 20, 50, 100, 200, len(X_train)]
+    if best_hidden_dims is None:
+        best_hidden_dims = [40]
+        best_reg = 1e-1
+    
+    best_model = NeuralNetwork(input_dim=7, hidden_layer_dims=best_hidden_dims, output_dim=1, reg=best_reg, lr=learning_rate)
+    train_sizes = [5, 10, 20, 50, 100, 200, 400, len(X_train)]
     test_losses = []
     
     for train_size in train_sizes:
@@ -65,10 +70,10 @@ def main():
         x_sample = X_train[:train_size]
         y_sample = y_train[:train_size]
         
-        best_model = NeuralNetwork(input_dim=7, hidden_layer_dims=[40], output_dim=1, reg=1e-2, lr=1e-1)
+        model = best_model
             
-        best_model.train(x_sample, y_sample, num_iters=1000, verbose=True)
-        test_loss, _ = best_model.loss(X_test, y_test)
+        model.train(x_sample, y_sample, num_iters=1000, verbose=True)
+        test_loss, _ = model.loss(X_test, y_test)
         print("Test loss", test_loss)
         test_losses.append(test_loss)
     

@@ -1,0 +1,32 @@
+Reg: 0.0 HD: [2] Validation Accuracy 0.7861 F1 0.8119
+Reg: 0.0 HD: [10] Validation Accuracy 0.8569 F1 0.8514
+Reg: 0.0 HD: [20] Validation Accuracy 0.8611 F1 0.8568
+Reg: 0.0 HD: [40] Validation Accuracy 0.8653 F1 0.8614
+Reg: 0.0 HD: [2, 2] Validation Accuracy 0.6833 F1 0.6759
+Reg: 0.0 HD: [20, 10] Validation Accuracy 0.8653 F1 0.858
+Reg: 0.0 HD: [30, 15] Validation Accuracy 0.8472 F1 0.8404
+Reg: 0.0 HD: [40, 20, 10] Validation Accuracy 0.7542 F1 0.642
+Reg: 0.001 HD: [2] Validation Accuracy 0.8431 F1 0.8335
+Reg: 0.001 HD: [10] Validation Accuracy 0.8597 F1 0.8548
+Reg: 0.001 HD: [20] Validation Accuracy 0.8597 F1 0.8545
+Reg: 0.001 HD: [40] Validation Accuracy 0.8653 F1 0.8623
+Reg: 0.001 HD: [2, 2] Validation Accuracy 0.7056 F1 0.7059
+Reg: 0.001 HD: [20, 10] Validation Accuracy 0.8403 F1 0.825
+Reg: 0.001 HD: [30, 15] Validation Accuracy 0.8528 F1 0.8431
+Reg: 0.001 HD: [40, 20, 10] Validation Accuracy 0.825 F1 0.8093
+Reg: 0.01 HD: [2] Validation Accuracy 0.8611 F1 0.851
+Reg: 0.01 HD: [10] Validation Accuracy 0.8556 F1 0.8504
+Reg: 0.01 HD: [20] Validation Accuracy 0.8653 F1 0.8619
+Reg: 0.01 HD: [40] Validation Accuracy 0.8611 F1 0.8587
+Reg: 0.01 HD: [2, 2] Validation Accuracy 0.6778 F1 0.731
+Reg: 0.01 HD: [20, 10] Validation Accuracy 0.8528 F1 0.8471
+Reg: 0.01 HD: [30, 15] Validation Accuracy 0.8403 F1 0.8305
+Reg: 0.01 HD: [40, 20, 10] Validation Accuracy 0.7778 F1 0.7889
+Reg: 0.1 HD: [2] Validation Accuracy 0.7972 F1 0.8138
+Reg: 0.1 HD: [10] Validation Accuracy 0.8653 F1 0.8601
+Reg: 0.1 HD: [20] Validation Accuracy 0.8625 F1 0.8579
+Reg: 0.1 HD: [40] Validation Accuracy 0.8681 F1 0.8652
+Reg: 0.1 HD: [2, 2] Validation Accuracy 0.6681 F1 0.6663
+Reg: 0.1 HD: [20, 10] Validation Accuracy 0.8611 F1 0.8609
+Reg: 0.1 HD: [30, 15] Validation Accuracy 0.8417 F1 0.8258
+Reg: 0.1 HD: [40, 20, 10] Validation Accuracy 0.8306 F1 0.8345
