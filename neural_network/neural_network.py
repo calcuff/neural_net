@@ -25,8 +25,7 @@ class NeuralNetwork():
         loss_history = []
         for it in range(1,num_iters+1):
             loss, grads = self.loss(X, y)
-            if (it % 500 == 0):
-                if verbose:
+            if (it % 500 == 0) and verbose:
                     print("Iteration", it, "loss", loss)
             loss_history.append(loss)
             for k in self.params:
@@ -100,24 +99,24 @@ class NeuralNetwork():
             logger.debug("delta"+str(self.num_layers)+": %s", delta)
             
             # Reverse loop for backpropagation
-            for i in range(self.num_layers-1, 0, -1):
+            for j in range(self.num_layers-1, 0, -1):
                 # Get theta,a from cache
-                theta = self.params["Theta"+str(i)]
-                a = cache["a"+str(i)]
+                theta = self.params["Theta"+str(j)]
+                a = cache["a"+str(j)]
                 
                 # Compute grad
                 g = np.outer(delta, a)
-                logger.debug("grads" + str(i)+": %s",  g)
+                logger.debug("grads" + str(j)+": %s",  g)
                 # Accumulate
-                grads["Theta"+str(i)] += g
+                grads["Theta"+str(j)] += g
                 
-                if i > 1:
+                if j > 1:
                     # Strip bias
                     theta_no_bias = theta[:,1:]
                     a_no_bias = a[1:]
                     # Calculate delta
                     delta = (theta_no_bias.T @ delta)*(a_no_bias*(1-a_no_bias))
-                    logger.debug("delta"+str(i)+": %s", delta)
+                    logger.debug("delta"+str(j)+": %s", delta)
             
         if mode == 'test':
             return scores

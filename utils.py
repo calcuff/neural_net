@@ -1,6 +1,7 @@
 import numpy as np
 import sklearn.utils, sklearn.model_selection
 from typing import Tuple
+from sklearn.preprocessing import OneHotEncoder
 
 # min-max normalization
 def normalize(X):
@@ -82,3 +83,25 @@ def calc_recall(tp, fn):
 
 def calc_f1_score(precision, recall, beta=1):
     return (1 + beta**2)*(precision * recall)/(beta**2 * precision + recall)
+
+
+
+def one_hot_encode(data: np.ndarray, columns: list):
+    ohe = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+    
+    total_cols = 0
+    for c in columns:
+        unique_vals = np.unique(data[:, c])
+        total_cols += unique_vals.shape[0]
+
+    encoded_data = np.zeros((data.shape[0], total_cols))
+
+    start = 0
+    for i, c in enumerate(columns):
+        d = data[:, c].reshape(-1, 1)
+        transformed = ohe.fit_transform(d)
+        end = start + transformed.shape[1]
+        encoded_data[:, start:end] = transformed
+        start = end
+
+    return encoded_data
