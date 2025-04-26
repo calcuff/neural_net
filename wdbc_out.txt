@@ -1,11 +1,5 @@
-$ python3 wdbc.py 
-(569, 31)
-X (569, 30)
-Y (569,)
 Reg: 0.0 HD: [10] Validation Accuracy 0.8681 F1 0.908
-Using best model @ Reg: 0.0 HD: [10]
 Reg: 0.0 HD: [20] Validation Accuracy 0.9275 F1 0.946
-Using best model @ Reg: 0.0 HD: [20]
 Reg: 0.0 HD: [40] Validation Accuracy 0.9341 F1 0.9507
 Reg: 0.0 HD: [20, 10] Validation Accuracy 0.6352 F1 0.7769
 Reg: 0.0 HD: [30, 15] Validation Accuracy 0.6374 F1 0.7779
@@ -19,7 +13,6 @@ Reg: 0.001 HD: [40, 20, 10] Validation Accuracy 0.6352 F1 0.7769
 Reg: 0.01 HD: [10] Validation Accuracy 0.8769 F1 0.9122
 Reg: 0.01 HD: [20] Validation Accuracy 0.9099 F1 0.9338
 Reg: 0.01 HD: [40] Validation Accuracy 0.9407 F1 0.9554
-Using best model @ Reg: 0.01 HD: [40]
 Reg: 0.01 HD: [20, 10] Validation Accuracy 0.6374 F1 0.7779
 Reg: 0.01 HD: [30, 15] Validation Accuracy 0.6352 F1 0.7769
 Reg: 0.01 HD: [40, 20, 10] Validation Accuracy 0.6352 F1 0.7769

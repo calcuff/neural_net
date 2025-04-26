@@ -4,43 +4,30 @@ from utils import *
 import matplotlib.pyplot as plt
 
 SHOULD_GRID_SEARCH = True
-learning_rate=1e-1
 
 def main():
-    data = np.genfromtxt('./resources/datasets/loan.csv', delimiter=',',dtype=object, encoding=None, skip_header=1)
+    data = np.genfromtxt('./resources/datasets/raisin.csv', delimiter=',', skip_header=1, dtype=float)
     print(data.shape)
+    X = data[:, :-1]
+    y = data[:, -1]
+    y = y.flatten().astype(int)
+    print("X", X.shape)
+    print("Y", y.shape)
     
-    categorical_cols = [0, 1, 2, 3, 4, 9, 10]
-    numerical_cols = [5, 6, 7, 8]
+    X = normalize(X)
     
-    # Extract numerical features
-    X_numerical = data[:, numerical_cols].astype(float)
-    X_numerical_norm = normalize(X_numerical)
-
-    # Process categorical columns 
-    X_categorical_encoded = one_hot_encode(data, categorical_cols)
-    print("ENCODED", X_categorical_encoded.shape)
-    
-    # Stack cols together
-    X = np.hstack((X_numerical_norm, X_categorical_encoded))
-
-    # Labels
-    y = data[:, -1].astype(int)
-
-    print("X shape:", X.shape)
-    print("y shape:", y.shape)
-
     X_train, X_test, y_train, y_test = shuffle_and_split(X, y)
     X_train_folds, y_train_folds = stratified_folds(X_train, y_train, 5)
     
     regs = [0.0, 1e-3, 1e-2, 1e-1]
-    hidden_dims = [[2], [4], [10], [20], [40], [20,10], [30,15], [40,20,10]]
+    hidden_dims = [[2],[10], [20], [40], [2,2], [20,10], [30,15], [40,20,10]]
     
     best_acc = 0.0
     best_hidden_dims = None
     best_reg = None
     
     if SHOULD_GRID_SEARCH:
+        # for lr in lrs:
         for reg in regs:
             for hd in hidden_dims:
                 accs = []
@@ -50,34 +37,26 @@ def main():
                     y_train_data = np.concatenate([y_train_folds[j] for j in range(len(y_train_folds)) if j != i])
                     validation_fold_x = X_train_folds[i]
                     validation_fold_y = y_train_folds[i]
+                
+                    nn = NeuralNetwork(input_dim=7, hidden_layer_dims=hd, output_dim=1, reg=reg, lr=1e-1)
+                    nn.train(x_train_data, y_train_data,num_iters=1000, verbose=False)
                     
-                    nn = NeuralNetwork(input_dim=21, hidden_layer_dims=hd, output_dim=1, reg=reg, lr=learning_rate)
-                    nn.train(x_train_data, y_train_data, num_iters=3000, verbose=True)
-
                     y_pred = nn.predict(validation_fold_x)
-                    
                     tp, fp, tn, fn = confusion_matrix(y_pred, validation_fold_y)
                     acc = calc_accuracy(tp, tn, validation_fold_y.shape[0])
                     f1 = calc_f1_score(calc_precision(tp,fp), calc_recall(tp,fn))
                     accs.append(acc)
                     f1s.append(f1)
-                    print("Fold", i, "Reg:", reg, "HD:", hd, "Validation Accuracy", f'{acc:.4}', "F1", f'{f1:.4}')
                 avg_acc = np.mean(accs)
                 avg_f1 = np.mean(f1s)
-                print("AVERAGE Reg:", reg, "HD:", hd, "Validation Accuracy", f'{avg_acc:.4}', "F1", f'{avg_f1:.4}')
+                print("Reg:", reg, "HD:", hd, "Validation Accuracy", f'{avg_acc:.4}', "F1", f'{avg_f1:.4}')
                 if avg_acc > best_acc:
                     print("Using best model @ Reg:", reg, "HD:", hd)
                     best_acc = avg_acc
                     best_reg = reg
                     best_hidden_dims = hd
-                  
-                  
-    if best_hidden_dims is None:
-        best_hidden_dims = [40,20,10]
-        best_reg = 1e-2
-        
-    best_model = NeuralNetwork(input_dim=21, hidden_layer_dims=best_hidden_dims, output_dim=1, reg=best_reg, lr=learning_rate)
-    
+
+
     train_sizes = [5, 10, 20, 50, 100, 200, len(X_train)]
     test_losses = []
     
@@ -86,12 +65,10 @@ def main():
         x_sample = X_train[:train_size]
         y_sample = y_train[:train_size]
         
-        # New model everytime
-        model = best_model
-        # Train
-        model.train(x_sample, y_sample, num_iters=3000, verbose=True)
-        # Test loss
-        test_loss, _ = model.loss(X_test, y_test)
+        best_model = NeuralNetwork(input_dim=7, hidden_layer_dims=[40], output_dim=1, reg=1e-2, lr=1e-1)
+            
+        best_model.train(x_sample, y_sample, num_iters=1000, verbose=True)
+        test_loss, _ = best_model.loss(X_test, y_test)
         print("Test loss", test_loss)
         test_losses.append(test_loss)
     
@@ -101,7 +78,6 @@ def main():
     plt.title('Learning Curve: Test Loss vs Training Set Size')
     plt.grid(True)
     plt.show()
-                    
 
 
 if __name__ == '__main__':
