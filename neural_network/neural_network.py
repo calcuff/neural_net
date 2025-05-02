@@ -10,7 +10,6 @@ class NeuralNetwork():
         self.reg = reg
         self.learning_rate=lr
         
-        
         if params:
             self.params = params
         else:
@@ -37,9 +36,67 @@ class NeuralNetwork():
         # Convert score to 1 or 0 prediction
         predictions = (scores > 0.5).astype(int)
         return predictions
-        
-    
+
     def loss(self, X, Y=None, verbose=False):
+        if verbose:
+            logging.basicConfig(level=logging.DEBUG)
+
+        mode = 'test' if Y is None else 'train'
+        m = X.shape[0]  # number of samples
+
+        # Forward pass
+        A = np.insert(X, 0, 1.0, axis=1)  # a1 with bias
+        cache = {'a1': A}
+        for j in range(1, self.num_layers):
+            Theta = self.params[f'Theta{j}']
+            Z = A @ Theta.T
+            A = sigmoid(Z)
+            if j != self.num_layers - 1:
+                # add bias except last layer
+                A = np.insert(A, 0, 1.0, axis=1)
+            cache[f'z{j+1}'] = Z
+            cache[f'a{j+1}'] = A
+
+        if mode == 'test':
+           return A[:, 0]  # final output layer predictions
+
+        # Compute loss
+        if Y.ndim == 1:
+            Y = Y[:, np.newaxis]
+        j = cost(Y, A)
+        J = np.mean(np.sum(j, axis=1))
+
+        # Add regularization to cost
+        for l in range(1, self.num_layers):
+            # get theta
+            theta = self.params[f'Theta{l}']
+            # skip bias term
+            theta_no_bias = theta[:, 1:]
+            S = (self.reg / (2 * m)) * np.sum(theta_no_bias ** 2)
+            J += S
+
+        # Backward pass
+        grads = {}
+        # Delta of last layer
+        delta = A - Y
+        # Reverse loop for backpropagation
+        for l in range(self.num_layers - 1, 0, -1):
+            # Get theta,a from cache
+            A = cache[f'a{l}'] 
+            theta = self.params[f'Theta{l}']
+
+            grads[f'Theta{l}'] = (delta.T @ A) / m
+            # Regularize (exclude bias column)
+            grads[f'Theta{l}'][:, 1:] += (self.reg / m) * theta[:, 1:]
+
+            if l > 1:
+                theta_no_bias = theta[:, 1:]
+                A_no_bias = A[:, 1:]
+                delta = (delta @ theta_no_bias) * (A_no_bias * (1 - A_no_bias))
+
+        return J, grads
+
+    def loss_non_vectorized(self, X, Y=None, verbose=False):
         if verbose:
             logging.basicConfig(level=logging.DEBUG)
         
@@ -144,6 +201,6 @@ def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 
-def cost(y, fx):
+def cost(Y, fx):
     eps = 1e-8
-    return np.sum((-y * np.log(fx + eps)) - (1-y)*(np.log(1-fx + eps)))
+    return -Y * np.log(fx + eps) - (1-Y)*np.log(1-fx + eps)
